@@ -46,7 +46,7 @@ set cluster to eu, you should also have all the needed packages required here in
 * instantiate $this->message = $message in constructor
 * change channnel-name to my-channel in broadcastOn method
 * change PrivateChannel to Channel in broadcastOn method
-* create method public broadcastAs() { return 'submit-notice'; }
+* create method public function broadcastAs() { return 'submit-notice'; }
 * ctrl-x and save
 * cd ../../
 * php artisan config:clear
