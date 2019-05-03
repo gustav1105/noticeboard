@@ -3,17 +3,42 @@
     <v-toolbar color="indigo" dark fixed app>
       <v-toolbar-title>Noticeboard</v-toolbar-title>
     </v-toolbar>
-    <v-content>
-      <v-container fluid fill-height>
-        <v-layout
-          justify-center
-          align-center
-        >
-          <v-flex text-xs-center>
+      <v-content>
+        <v-layout>
+          <v-flex xs12 md12>
+                <v-card>
+                  <v-card-title primary-title>
+                    <div>
+                      <h3 class="headline mb-0">Community Notices</h3>
+                    </div>
+                  </v-card-title>
+                  <v-layout v-for="obj in posts" v-bind:key="obj.id">
+                    <v-flex>
+                      <v-card>
+                        <v-card-title>
+                          <div>
+                            <h4>{{ obj.post }}</h4><br>
+                            <p>{{ obj.user.name }}</p>
+                            <span>{{ obj.created_at }}</span>
+                          </div>
+                        </v-card-title>
+                      </v-card>
+                    </v-flex>
+                  </v-layout>
+                <v-card-text>
+                  <form id="submit-notice-form" @submit.prevent="submitNoticeForm">
+                    <v-text-field label="Create a new notice" solo v-model="post" name="post"></v-text-field>
+                    <v-btn type="submit">Create Notice</v-btn>
+                  </form>
+                </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
           </v-flex>
         </v-layout>
-      </v-container>
-    </v-content>
+      </v-content>
     <v-footer color="indigo" app>
       <span class="white--text">&copy; 2019</span>
     </v-footer>
@@ -23,24 +48,53 @@
 
 <script>
 import Login from './Login'
-import { EventBus } from '../event-bus';
+import { EventBus } from '../event-bus'
 
 export default {
     data() {
         return {
-            loggedIn: false
+            loggedIn: false,
+            posts: [],
+            post: null,
+            token: null
         }
-    },
-    props: {
-        source: String
     },
     components: {
         Login
     },
     mounted() {
-      EventBus.$on('set-token', (e) => {
+      EventBus.$on('set-token', (token) => {
         this.loggedIn = true
-      });
+        this.token = token
+        let posts = []
+          axios.get('http://localhost:8000/api/auth/posts',{
+              headers: {
+                Authorization: `Bearer ${token}`,
+              }
+            })
+            .then(function (response) {
+              response.data.forEach(function(obj) {
+                posts.push(obj)
+              })
+            })
+            .catch(function (error) {
+                console.log(error)
+            })
+          this.posts = posts
+      })
+    },
+    methods: {
+      submitNoticeForm() {
+        let formData = $("#submit-notice-form").serialize();
+        let config = {headers: {Authorization: `Bearer ${this.token}`,"Content-Type": "application/x-www-form-urlencoded"}}
+        axios.post('http://localhost:8000/api/auth/posts',formData,config)
+          .then(function (response) {
+            console.log(response)
+          })
+          .catch(function (error) {
+              console.log(error)
+          })
+      }
     }
 }
 </script>

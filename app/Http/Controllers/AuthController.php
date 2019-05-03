@@ -24,21 +24,21 @@ class AuthController extends Controller
 	*
 	* @return \Illuminate\Http\JsonResponse
 	*/
-	public function register(Request $request)
-	{
-		$this->validate($request, [
-			'name' => 'required',
-			'email' => 'required|email',
-			'password' => 'required|min:6'
-		]);
+	// public function register(Request $request)
+	// {
+	// 	$this->validate($request, [
+	// 		'name' => 'required',
+	// 		'email' => 'required|email',
+	// 		'password' => 'required|min:6'
+	// 	]);
 
-		$user = new User();
-		$user->name = $request->name;
-		$user->email = $request->email;
-		$user->password = bcrypt($request->password);
-		$user->save();
-		return response()->json(['user' => $user]);
-	}
+	// 	$user = new User();
+	// 	$user->name = $request->name;
+	// 	$user->email = $request->email;
+	// 	$user->password = bcrypt($request->password);
+	// 	$user->save();
+	// 	return response()->json(['user' => $user]);
+	// }
 
 	/**
 	* Get a JWT via given credentials.
@@ -59,10 +59,10 @@ class AuthController extends Controller
 	*
 	* @return \Illuminate\Http\JsonResponse
 	*/
-	public function me()
-	{
-		return response()->json(auth('api')->user());
-	}
+	// public function me()
+	// {
+	// 	return response()->json(auth('api')->user());
+	// }
 
 	/**
 	* Log the user out (Invalidate the token).
@@ -80,10 +80,10 @@ class AuthController extends Controller
 	*
 	* @return \Illuminate\Http\JsonResponse
 	*/
-	public function refresh()
-	{
-		return $this->respondWithToken(auth('api')->refresh());
-	}
+	// public function refresh()
+	// {
+	// 	return $this->respondWithToken(auth('api')->refresh());
+	// }
 
 	/**
 	* Get the token array structure.
@@ -104,5 +104,21 @@ class AuthController extends Controller
 
 	public function guard(){
 		return \Auth::Guard('api');
+	}
+
+	public function posts() {
+		$posts = \App\Post::with('user')->get();
+		return response()->json($posts);
+	}
+
+	public function create() {
+		$data = request();
+		\Log::info($data);
+		$user = $this->guard()->user();
+		$post = new \App\Post;
+		$post->post = $data['post'];
+		$post->user_id = $user->id;
+		$post->save();
+		return response()->json("Post has been created");
 	}
 }

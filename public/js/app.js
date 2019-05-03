@@ -1788,16 +1788,41 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      loggedIn: false
+      loggedIn: false,
+      posts: [],
+      post: null,
+      token: null
     };
-  },
-  props: {
-    source: String
   },
   components: {
     Login: _Login__WEBPACK_IMPORTED_MODULE_0__["default"]
@@ -1805,9 +1830,39 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this = this;
 
-    _event_bus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$on('set-token', function (e) {
+    _event_bus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$on('set-token', function (token) {
       _this.loggedIn = true;
+      _this.token = token;
+      var posts = [];
+      axios.get('http://localhost:8000/api/auth/posts', {
+        headers: {
+          Authorization: "Bearer ".concat(token)
+        }
+      }).then(function (response) {
+        response.data.forEach(function (obj) {
+          posts.push(obj);
+        });
+      })["catch"](function (error) {
+        console.log(error);
+      });
+      _this.posts = posts;
     });
+  },
+  methods: {
+    submitNoticeForm: function submitNoticeForm() {
+      var formData = $("#submit-notice-form").serialize();
+      var config = {
+        headers: {
+          Authorization: "Bearer ".concat(this.token),
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      };
+      axios.post('http://localhost:8000/api/auth/posts', formData, config).then(function (response) {
+        console.log(response);
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
   }
 });
 
@@ -48244,13 +48299,110 @@ var render = function() {
             "v-content",
             [
               _c(
-                "v-container",
-                { attrs: { fluid: "", "fill-height": "" } },
+                "v-layout",
                 [
                   _c(
-                    "v-layout",
-                    { attrs: { "justify-center": "", "align-center": "" } },
-                    [_c("v-flex", { attrs: { "text-xs-center": "" } })],
+                    "v-flex",
+                    { attrs: { xs12: "", md12: "" } },
+                    [
+                      _c(
+                        "v-card",
+                        [
+                          _c(
+                            "v-card-title",
+                            { attrs: { "primary-title": "" } },
+                            [
+                              _c("div", [
+                                _c("h3", { staticClass: "headline mb-0" }, [
+                                  _vm._v("Community Notices")
+                                ])
+                              ])
+                            ]
+                          ),
+                          _vm._v(" "),
+                          _vm._l(_vm.posts, function(obj) {
+                            return _c(
+                              "v-layout",
+                              { key: obj.id },
+                              [
+                                _c(
+                                  "v-flex",
+                                  [
+                                    _c(
+                                      "v-card",
+                                      [
+                                        _c("v-card-title", [
+                                          _c("div", [
+                                            _c("h4", [
+                                              _vm._v(_vm._s(obj.post))
+                                            ]),
+                                            _c("br"),
+                                            _vm._v(" "),
+                                            _c("p", [
+                                              _vm._v(_vm._s(obj.user.name))
+                                            ]),
+                                            _vm._v(" "),
+                                            _c("span", [
+                                              _vm._v(_vm._s(obj.created_at))
+                                            ])
+                                          ])
+                                        ])
+                                      ],
+                                      1
+                                    )
+                                  ],
+                                  1
+                                )
+                              ],
+                              1
+                            )
+                          }),
+                          _vm._v(" "),
+                          _c("v-card-text", [
+                            _c(
+                              "form",
+                              {
+                                attrs: { id: "submit-notice-form" },
+                                on: {
+                                  submit: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.submitNoticeForm($event)
+                                  }
+                                }
+                              },
+                              [
+                                _c("v-text-field", {
+                                  attrs: {
+                                    label: "Create a new notice",
+                                    solo: "",
+                                    name: "post"
+                                  },
+                                  model: {
+                                    value: _vm.post,
+                                    callback: function($$v) {
+                                      _vm.post = $$v
+                                    },
+                                    expression: "post"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("v-btn", { attrs: { type: "submit" } }, [
+                                  _vm._v("Create Notice")
+                                ])
+                              ],
+                              1
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "v-card-actions",
+                            [_c("v-spacer"), _vm._v(" "), _c("v-spacer")],
+                            1
+                          )
+                        ],
+                        2
+                      )
+                    ],
                     1
                   )
                 ],
