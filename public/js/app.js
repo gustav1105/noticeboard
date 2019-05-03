@@ -1820,7 +1820,7 @@ __webpack_require__.r(__webpack_exports__);
     return {
       loggedIn: false,
       posts: [],
-      post: null,
+      notice: null,
       token: null
     };
   },
@@ -1831,24 +1831,51 @@ __webpack_require__.r(__webpack_exports__);
     var _this = this;
 
     _event_bus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$on('set-token', function (token) {
-      _this.loggedIn = true;
       _this.token = token;
-      var posts = [];
-      axios.get('http://localhost:8000/api/auth/posts', {
+      _this.loggedIn = true;
+
+      _this.pusherConfig();
+
+      _this.fetchData();
+    });
+  },
+  methods: {
+    fetchData: function fetchData() {
+      var self = this;
+      axios.get('http://localhost:8000/api/auth/posts/0', {
         headers: {
-          Authorization: "Bearer ".concat(token)
+          Authorization: "Bearer ".concat(self.token)
         }
       }).then(function (response) {
         response.data.forEach(function (obj) {
-          posts.push(obj);
+          self.posts.push(obj);
         });
       })["catch"](function (error) {
         console.log(error);
       });
-      _this.posts = posts;
-    });
-  },
-  methods: {
+    },
+    pusherConfig: function pusherConfig() {
+      var self = this;
+      var pusher = new Pusher(GLOBALS.PUSHER_APP_KEY, {
+        cluster: GLOBALS.PUSHER_APP_CLUSTER,
+        forceTLS: true
+      });
+      var channel = pusher.subscribe('my-channel');
+      channel.bind('submit-notice', function (data) {
+        // console.log(data.message)
+        axios.get("http://localhost:8000/api/auth/posts/".concat(data.message), {
+          headers: {
+            Authorization: "Bearer ".concat(self.token)
+          }
+        }).then(function (response) {
+          response.data.forEach(function (obj) {
+            self.posts.push(obj);
+          });
+        })["catch"](function (error) {
+          console.log(error);
+        });
+      });
+    },
     submitNoticeForm: function submitNoticeForm() {
       var formData = $("#submit-notice-form").serialize();
       var config = {
@@ -1858,7 +1885,7 @@ __webpack_require__.r(__webpack_exports__);
         }
       };
       axios.post('http://localhost:8000/api/auth/posts', formData, config).then(function (response) {
-        console.log(response);
+        console.log(response.data);
       })["catch"](function (error) {
         console.log(error);
       });
@@ -48320,7 +48347,43 @@ var render = function() {
                             ]
                           ),
                           _vm._v(" "),
-                          _vm._l(_vm.posts, function(obj) {
+                          _c("v-card-text", [
+                            _c(
+                              "form",
+                              {
+                                attrs: { id: "submit-notice-form" },
+                                on: {
+                                  submit: function($event) {
+                                    $event.preventDefault()
+                                    return _vm.submitNoticeForm($event)
+                                  }
+                                }
+                              },
+                              [
+                                _c("v-text-field", {
+                                  attrs: {
+                                    label: "Create a new notice",
+                                    solo: "",
+                                    name: "post"
+                                  },
+                                  model: {
+                                    value: _vm.notice,
+                                    callback: function($$v) {
+                                      _vm.notice = $$v
+                                    },
+                                    expression: "notice"
+                                  }
+                                }),
+                                _vm._v(" "),
+                                _c("v-btn", { attrs: { type: "submit" } }, [
+                                  _vm._v("Create Notice")
+                                ])
+                              ],
+                              1
+                            )
+                          ]),
+                          _vm._v(" "),
+                          _vm._l(_vm.posts.slice().reverse(), function(obj) {
                             return _c(
                               "v-layout",
                               { key: obj.id },
@@ -48357,42 +48420,6 @@ var render = function() {
                               1
                             )
                           }),
-                          _vm._v(" "),
-                          _c("v-card-text", [
-                            _c(
-                              "form",
-                              {
-                                attrs: { id: "submit-notice-form" },
-                                on: {
-                                  submit: function($event) {
-                                    $event.preventDefault()
-                                    return _vm.submitNoticeForm($event)
-                                  }
-                                }
-                              },
-                              [
-                                _c("v-text-field", {
-                                  attrs: {
-                                    label: "Create a new notice",
-                                    solo: "",
-                                    name: "post"
-                                  },
-                                  model: {
-                                    value: _vm.post,
-                                    callback: function($$v) {
-                                      _vm.post = $$v
-                                    },
-                                    expression: "post"
-                                  }
-                                }),
-                                _vm._v(" "),
-                                _c("v-btn", { attrs: { type: "submit" } }, [
-                                  _vm._v("Create Notice")
-                                ])
-                              ],
-                              1
-                            )
-                          ]),
                           _vm._v(" "),
                           _c(
                             "v-card-actions",

@@ -8,6 +8,13 @@
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+        <script src="https://js.pusher.com/4.4/pusher.min.js"></script>
+        <script>
+            const GLOBALS = {
+                "PUSHER_APP_KEY": "{{env('PUSHER_APP_KEY')}}",
+                "PUSHER_APP_CLUSTER": "{{env('PUSHER_APP_CLUSTER')}}"
+            }
+        </script>
     </head>
     <body>
         <div id="app">

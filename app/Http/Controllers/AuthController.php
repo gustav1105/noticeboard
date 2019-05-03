@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use App\Events\SubmitNotice;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -106,19 +107,20 @@ class AuthController extends Controller
 		return \Auth::Guard('api');
 	}
 
-	public function posts() {
-		$posts = \App\Post::with('user')->get();
+	public function posts($id) {
+		$posts = \App\Post::with('user')->where('id','>=',$id)->orderBy('id','asc')->get();
 		return response()->json($posts);
 	}
 
 	public function create() {
 		$data = request();
-		\Log::info($data);
 		$user = $this->guard()->user();
 		$post = new \App\Post;
 		$post->post = $data['post'];
 		$post->user_id = $user->id;
 		$post->save();
+
+		event(new SubmitNotice($post->id));
 		return response()->json("Post has been created");
 	}
 }
