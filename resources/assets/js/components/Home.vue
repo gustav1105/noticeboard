@@ -4,6 +4,18 @@
       <v-toolbar-title>Noticeboard</v-toolbar-title>
     </v-toolbar>
       <v-content>
+        <v-alert
+          :value="error"
+          type="error"
+        >
+          {{ errorMessage }}
+        </v-alert>
+        <v-alert
+          :value="success"
+          type="success"
+        >
+          {{ successMessage }}
+        </v-alert>
         <v-layout>
           <v-flex xs12 md12>
                 <v-card>
@@ -49,6 +61,7 @@
 <script>
 import Login from './Login'
 import { EventBus } from '../event-bus'
+import { setTimeout } from 'timers';
 
 export default {
     data() {
@@ -57,6 +70,10 @@ export default {
         posts: [],
         notice: null,
         token: null,
+        error: false,
+        errorMessage: '',
+        success: false,
+        successMessage: ''
       }
     },
     components: {
@@ -120,12 +137,21 @@ export default {
       submitNoticeForm() {
         let formData = $("#submit-notice-form").serialize();
         let config = {headers: {Authorization: `Bearer ${this.token}`,"Content-Type": "application/x-www-form-urlencoded"}}
+        let self = this
         axios.post('http://localhost:8000/api/auth/posts',formData,config)
           .then(function (response) {
-            console.log(response.data)
+            self.success = true
+            self.error = false
+            self.successMessage = "Successfully added notice to board."
+            setTimeout(function() {
+              self.success = false
+            },3000)
           })
           .catch(function (error) {
-              console.log(error)
+              if(error.message == 'Request failed with status code 422') {
+                self.errorMessage = "You cannot submit an empty notice"
+              }
+              self.error = true
           })
       }
     }

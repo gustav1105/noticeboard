@@ -1765,6 +1765,8 @@ module.exports = {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Login__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Login */ "./resources/assets/js/components/Login.vue");
 /* harmony import */ var _event_bus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../event-bus */ "./resources/assets/js/event-bus.js");
+/* harmony import */ var timers__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! timers */ "./node_modules/timers-browserify/main.js");
+/* harmony import */ var timers__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(timers__WEBPACK_IMPORTED_MODULE_2__);
 //
 //
 //
@@ -1813,6 +1815,19 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -1821,7 +1836,11 @@ __webpack_require__.r(__webpack_exports__);
       loggedIn: false,
       posts: [],
       notice: null,
-      token: null
+      token: null,
+      error: false,
+      errorMessage: '',
+      success: false,
+      successMessage: ''
     };
   },
   components: {
@@ -1884,10 +1903,20 @@ __webpack_require__.r(__webpack_exports__);
           "Content-Type": "application/x-www-form-urlencoded"
         }
       };
+      var self = this;
       axios.post('http://localhost:8000/api/auth/posts', formData, config).then(function (response) {
-        console.log(response.data);
+        self.success = true;
+        self.error = false;
+        self.successMessage = "Successfully added notice to board.";
+        Object(timers__WEBPACK_IMPORTED_MODULE_2__["setTimeout"])(function () {
+          self.success = false;
+        }, 3000);
       })["catch"](function (error) {
-        console.log(error);
+        if (error.message == 'Request failed with status code 422') {
+          self.errorMessage = "You cannot submit an empty notice";
+        }
+
+        self.error = true;
       });
     }
   }
@@ -1960,6 +1989,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
@@ -1967,6 +2002,8 @@ __webpack_require__.r(__webpack_exports__);
       email: null,
       password: null,
       token: null,
+      error: false,
+      errorMessage: '',
       emailRules: [function (v) {
         return !!v || "E-mail is required";
       }],
@@ -1979,13 +2016,8 @@ __webpack_require__.r(__webpack_exports__);
     source: String
   },
   methods: {
-    // checkEmpty(value, field){
-    //   console.log(value,field)
-    //   if(!value.trim()){
-    //     this.field = this.field
-    //   }
-    // },
     submitLoginForm: function submitLoginForm() {
+      var self = this;
       axios.post('http://localhost:8000/api/auth/login', {
         email: this.email,
         password: this.password
@@ -1997,7 +2029,15 @@ __webpack_require__.r(__webpack_exports__);
           _event_bus_js__WEBPACK_IMPORTED_MODULE_0__["EventBus"].$emit('set-token', token);
         }
       })["catch"](function (error) {
-        console.log(error);
+        if (error.message == 'Request failed with status code 422') {
+          self.errorMessage = "Please make sure you entered a valid email address and that password is not blank.";
+        }
+
+        if (error.message == 'Request failed with status code 401') {
+          self.errorMessage = "The credentials you have supplied does not match any on our records.";
+        }
+
+        self.error = true;
       });
     }
   }
@@ -48351,6 +48391,16 @@ var render = function() {
           _c(
             "v-content",
             [
+              _c("v-alert", { attrs: { value: _vm.error, type: "error" } }, [
+                _vm._v("\n        " + _vm._s(_vm.errorMessage) + "\n      ")
+              ]),
+              _vm._v(" "),
+              _c(
+                "v-alert",
+                { attrs: { value: _vm.success, type: "success" } },
+                [_vm._v("\n        " + _vm._s(_vm.successMessage) + "\n      ")]
+              ),
+              _vm._v(" "),
               _c(
                 "v-layout",
                 [
@@ -48621,6 +48671,18 @@ var render = function() {
                               )
                             ],
                             1
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "v-alert",
+                            { attrs: { value: _vm.error, type: "error" } },
+                            [
+                              _vm._v(
+                                "\n              " +
+                                  _vm._s(_vm.errorMessage) +
+                                  "\n            "
+                              )
+                            ]
                           )
                         ],
                         1

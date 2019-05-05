@@ -45,6 +45,12 @@
                 <v-spacer></v-spacer>
                 <v-btn @click="submitLoginForm" color="primary">Submit</v-btn>
               </v-card-actions>
+              <v-alert
+                :value="error"
+                type="error"
+                >
+                {{ errorMessage }}
+              </v-alert>
             </v-card>
           </v-flex>
         </v-layout>
@@ -62,6 +68,8 @@ export default {
             email: null,
             password: null,
             token: null,
+            error: false,
+            errorMessage: '',
             emailRules: [
               v => !!v || "E-mail is required"
             ],
@@ -74,13 +82,8 @@ export default {
         source: String
     },
     methods: {
-      // checkEmpty(value, field){
-      //   console.log(value,field)
-      //   if(!value.trim()){
-      //     this.field = this.field
-      //   }
-      // },
       submitLoginForm() {
+          let self = this
           axios.post('http://localhost:8000/api/auth/login', {
               email: this.email,
               password: this.password
@@ -93,7 +96,13 @@ export default {
               }
           })
           .catch(function (error) {
-              console.log(error)
+              if (error.message == 'Request failed with status code 422') {
+                self.errorMessage = "Please make sure you entered a valid email address and that password is not blank."
+              }
+              if(error.message == 'Request failed with status code 401') {
+                self.errorMessage = "The credentials you have supplied does not match any on our records."
+              }
+              self.error = true
           });
       }
     }
