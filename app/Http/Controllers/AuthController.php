@@ -112,8 +112,10 @@ class AuthController extends Controller
 		return response()->json($posts);
 	}
 
-	public function create() {
-		$data = request();
+	public function create(Request $request) {
+		$data = $request->validate([
+			'post' => 'required|max:255'
+		]);
 		$user = $this->guard()->user();
 		$post = new \App\Post;
 		$post->post = $data['post'];
