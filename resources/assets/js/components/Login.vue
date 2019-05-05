@@ -23,8 +23,22 @@
               </v-toolbar>
               <v-card-text>
                 <v-form id="login-form">
-                  <v-text-field prepend-icon="person" name="email" label="Email" type="text" v-model="email"></v-text-field>
-                  <v-text-field prepend-icon="lock" name="password" label="Password" id="password" type="password" v-model="password"></v-text-field>
+                  <v-text-field
+                    prepend-icon="person"
+                    name="email"
+                    label="Email"
+                    type="text"
+                    v-model="email"
+                    :rules="emailRules"
+                    ></v-text-field>
+                  <v-text-field
+                    prepend-icon="lock"
+                    name="password"
+                    label="Password"
+                    id="password"
+                    type="password"
+                    v-model="password"
+                    :rules="passwordRules"></v-text-field>
                 </v-form>
               </v-card-text>
               <v-card-actions>
@@ -47,29 +61,41 @@ export default {
         return {
             email: null,
             password: null,
-            token: null
+            token: null,
+            emailRules: [
+              v => !!v || "E-mail is required"
+            ],
+            passwordRules: [
+              v => !!v || "Password is required"
+            ]
         }
     },
     props: {
         source: String
     },
     methods: {
-        submitLoginForm() {
-            axios.post('http://localhost:8000/api/auth/login', {
-                email: this.email,
-                password: this.password
-            })
-            .then(function (response) {
-                const token = response.data.access_token
-                if (token) {
-                    // this.token = token
-                    EventBus.$emit('set-token',token)
-                }
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
-        }
+      // checkEmpty(value, field){
+      //   console.log(value,field)
+      //   if(!value.trim()){
+      //     this.field = this.field
+      //   }
+      // },
+      submitLoginForm() {
+          axios.post('http://localhost:8000/api/auth/login', {
+              email: this.email,
+              password: this.password
+          })
+          .then(function (response) {
+              const token = response.data.access_token
+              if (token) {
+                  // this.token = token
+                  EventBus.$emit('set-token',token)
+              }
+          })
+          .catch(function (error) {
+              console.log(error)
+          });
+      }
     }
 }
 </script>

@@ -1946,19 +1946,45 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       email: null,
       password: null,
-      token: null
+      token: null,
+      emailRules: [function (v) {
+        return !!v || "E-mail is required";
+      }],
+      passwordRules: [function (v) {
+        return !!v || "Password is required";
+      }]
     };
   },
   props: {
     source: String
   },
   methods: {
+    // checkEmpty(value, field){
+    //   console.log(value,field)
+    //   if(!value.trim()){
+    //     this.field = this.field
+    //   }
+    // },
     submitLoginForm: function submitLoginForm() {
       axios.post('http://localhost:8000/api/auth/login', {
         email: this.email,
@@ -48544,7 +48570,8 @@ var render = function() {
                                       "prepend-icon": "person",
                                       name: "email",
                                       label: "Email",
-                                      type: "text"
+                                      type: "text",
+                                      rules: _vm.emailRules
                                     },
                                     model: {
                                       value: _vm.email,
@@ -48561,7 +48588,8 @@ var render = function() {
                                       name: "password",
                                       label: "Password",
                                       id: "password",
-                                      type: "password"
+                                      type: "password",
+                                      rules: _vm.passwordRules
                                     },
                                     model: {
                                       value: _vm.password,
